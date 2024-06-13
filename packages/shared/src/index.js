@@ -7,3 +7,9 @@ export const isObject = obj => {
 export const hasChanged = (newValue, oldValue) => {
   return !Object.is(newValue, oldValue)
 }
+
+export const isFunction = val => {
+  return typeof val === 'function'
+}
+
+export const extend = Object.assign

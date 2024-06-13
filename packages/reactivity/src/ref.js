@@ -21,6 +21,7 @@ function isRef(r) {
 
 class RefImpl {
   dep = null
+  __v_isRef = true
   constructor(value, __v_isShallow) {
     // 原始数据
     this._rawValue = value

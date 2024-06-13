@@ -1,19 +1,19 @@
 import Vue from "../reactivity/src/index.js"
+import { watch } from "../runtime-core/src/apiWatch.js"
 
-const { effect, reactive, ref } = Vue
+const { effect, reactive, ref, computed } = Vue
 
-const state = ref({
+const state = reactive({
   name: 'Kevin'
 })
 
-const obj = ref('Kevin')
-
-effect(() => {
-  // document.getElementById('app').innerText = state.value.name
-  document.getElementById('app').innerText = obj.value
+watch(state, (newValue, oldValue) => {
+  console.log('watch触发', newValue, oldValue)
+}, {
+  immediate: true
 })
 
 setTimeout(() => {
   // state.value.name = 'King'
-  obj.value = 'King2'
+  state.name = 'King'
 }, 1000)

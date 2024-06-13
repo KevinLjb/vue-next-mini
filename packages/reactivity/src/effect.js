@@ -1,17 +1,25 @@
 import { createDep } from "./dep.js"
+import { extend } from "../../shared/src"
 
 const targetMap = new WeakMap()
 
-export function effect(fn) {
+export function effect(fn, options) {
   const _effect = new ReactiveEffect(fn)
-  _effect.run()
+  if (options) {
+    // 存在options，则合并到effect上,比如scheduler
+    extend(_effect, options)
+  }
+  if (!options || !options.lazy) {
+    _effect.run()
+  }
 }
 
 export let activeEffect = null
 
 export class ReactiveEffect {
-  constructor(fn) {
+  constructor(fn, scheduler) {
     this.fn = fn
+    this.scheduler = scheduler
   }
 
   run() {
@@ -19,7 +27,7 @@ export class ReactiveEffect {
     return this.fn()
   }
 
-
+  stop() {}
 }
 
 /**
@@ -65,12 +73,26 @@ export function triggerEffects(dep) {
   const effects = Array.isArray(dep) ? dep : [...dep]
   // 依次触发依赖
   for (const effect of effects) {
-    triggerEffect(effect)
+    // 先触发computed的effect，因为后触发computed的effect会导致死循环
+    if (effect.computed) {
+      triggerEffect(effect)
+    }
+  }
+
+  for (const effect of effects) {
+    // 后触发普通的effect
+    if (!effect.computed) {
+      triggerEffect(effect)
+    }
   }
 }
 
 export function triggerEffect(effect) {
-  effect.run()
+  if (effect.scheduler) {
+    effect.scheduler()
+  } else {
+    effect.run()
+  }
 }
 
 

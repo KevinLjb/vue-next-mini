@@ -23,9 +23,15 @@ function createReactiveObject(target, baseHandlers, proxyMap) {
   }
   const proxy = new Proxy(target, baseHandlers)
   proxyMap.set(target, proxy)
+  // 标记为一个reactive
+  proxy.__v_isReactive = true
   return proxy
 }
 
 export function toReactive(value) {
   return isObject(value) ? reactive(value) : value
+}
+
+export function isReactive(val) {
+  return !!(val && val.__v_isReactive === true)
 }
