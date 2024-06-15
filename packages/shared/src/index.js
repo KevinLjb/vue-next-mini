@@ -12,4 +12,8 @@ export const isFunction = val => {
   return typeof val === 'function'
 }
 
+export const isString = val => typeof val === 'string'
+
+export const isArray = Array.isArray
+
 export const extend = Object.assign

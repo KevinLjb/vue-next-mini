@@ -1,19 +1,15 @@
 import Vue from "../reactivity/src/index.js"
 import { watch } from "../runtime-core/src/apiWatch.js"
+import { h } from '../runtime-core/src/h.js'
 
 const { effect, reactive, ref, computed } = Vue
 
-const state = reactive({
-  name: 'Kevin'
-})
+const vnode = h('div', {
+  class: 'test'
+}, [
+  h('p', 'p1'),
+  h('p', 'p2'),
+  h('p', 'p3')
+])
 
-watch(state, (newValue, oldValue) => {
-  console.log('watch触发', newValue, oldValue)
-}, {
-  immediate: true
-})
-
-setTimeout(() => {
-  // state.value.name = 'King'
-  state.name = 'King'
-}, 1000)
+console.log(vnode)
