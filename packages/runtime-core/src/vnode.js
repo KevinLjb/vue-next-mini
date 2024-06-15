@@ -1,5 +1,9 @@
-import { isString, isFunction, isArray } from "../../shared/src/index.js"
+import {isString, isFunction, isArray, isObject} from "../../shared/src/index.js"
 import { ShapeFlags } from "../../shared/src/shapeFlags.js"
+
+export const Fragment = Symbol('Fragment')
+export const Text = Symbol('Text')
+export const Comment = Symbol('Comment')
 
 /**
  * 创建一个VNode对象
@@ -9,7 +13,12 @@ import { ShapeFlags } from "../../shared/src/shapeFlags.js"
  */
 export function createVNode(type, props, children) {
   // 通过 bit 位处理 shapeFlag 类型
-  const shapeFlag = isString(type) ? ShapeFlags.ELEMENT : 0
+  // 这里判断并记录下dom类型
+  const shapeFlag = isString(type) ?
+    // 是字符串，则为element
+    ShapeFlags.ELEMENT
+    // 是对象，则是一个有状态的组件,h(component)
+    : isObject(type) ? ShapeFlags.STATEFUL_COMPONENT : 0
   return createBaseVNode(type, props, children, shapeFlag)
 }
 
@@ -47,6 +56,8 @@ export function normalizeChildren(vnode, children) {
   // 修改vnode的children为处理过的children
   vnode.children = children
   // 按位或赋值
+  // 这里是将dom和其children的类型，合并到一起记录下来
+  // 这样一个变量，可以同时记录下dom和children的类型
   vnode.shapeFlag |= type
 }
 
