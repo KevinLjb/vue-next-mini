@@ -5,7 +5,10 @@ import { h } from '../runtime-core/src/h.js'
 const { effect, reactive, ref, computed } = Vue
 
 const vnode = h('div', {
-  class: 'test'
+  class: {
+    'test': true,
+    'red': true
+  }
 }, [
   h('p', 'p1'),
   h('p', 'p2'),

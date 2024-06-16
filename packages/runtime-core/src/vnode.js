@@ -1,5 +1,6 @@
 import {isString, isFunction, isArray, isObject} from "../../shared/src/index.js"
 import { ShapeFlags } from "../../shared/src/shapeFlags.js"
+import { normalizeClass } from "../../shared/src/normalizeProp.js"
 
 export const Fragment = Symbol('Fragment')
 export const Text = Symbol('Text')
@@ -30,6 +31,13 @@ export function createBaseVNode(type, props, children, shapeFlag) {
     type,
     props,
     shapeFlag
+  }
+  if (props) {
+    let { class: klass } = props
+    // 处理class
+    if (klass && !isString(klass)) {
+      props.class = normalizeClass(klass)
+    }
   }
   // 处理children
   normalizeChildren(vnode, children)
