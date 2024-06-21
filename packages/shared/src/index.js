@@ -17,3 +17,6 @@ export const isString = val => typeof val === 'string'
 export const isArray = Array.isArray
 
 export const extend = Object.assign
+
+// 判断是否以on开头，用来判断vnode中的事件
+export const isOn = key => /^on[^a-z]/.test(key)
