@@ -7,11 +7,40 @@ export function createRenderer(options) {
 
 function baseCreateRenderer(options) {
   const {
-    insert,
-    patchProp,
-    createElement,
-    setElementText
+    insert: hostInsert,
+    patchProp: hostPatchProp,
+    createElement: hostCreateElement,
+    setElementText: hostSetElementText
   } = options
+
+  const processElement = (oldVNode, newVNode, container, anchor) => {
+    if (oldVNode == null) {
+      mountElement(newVNode, container, anchor)
+    } else {
+
+    }
+  }
+
+  const mountElement = (vnode, container, anchor) => {
+    const { type, props, shapeFlag } = vnode
+    // 创建element
+    const el = vnode.el = hostCreateElement(type)
+    if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      // 设置文本子节点
+      hostSetElementText(el, vnode.children)
+    } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+
+    }
+    // 处理props
+    if (props) {
+      for (const key in props) {
+        // 第一次赋值,所有oldValue为null,相当于直接赋值
+        hostPatchProp(el, key, null, props[key])
+      }
+    }
+    // 插入el到指定位置
+    hostInsert(el, container, anchor)
+  }
 
   const patch = (oldVNode, newVNode, container, anchor) => {
     if (oldVNode === newVNode) {
@@ -44,3 +73,4 @@ function baseCreateRenderer(options) {
     container._vnode = vnode
   }
 }
+
