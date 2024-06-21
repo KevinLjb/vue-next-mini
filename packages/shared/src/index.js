@@ -1,4 +1,6 @@
 
+export const EMPTY_OBJ = {}
+
 export const isObject = obj => {
   return obj !== null && typeof obj === 'object'
 }

@@ -72,3 +72,10 @@ export function normalizeChildren(vnode, children) {
 export const isVNode = value => {
   return value ? value.__v_isVNode === true : false
 }
+
+/**
+ * 根据key || type判断是否为相同类型节点
+ */
+export function isSameVNodeType(n1, n2) {
+  return n1.type === n2.type && n1.key === n2.key
+}
