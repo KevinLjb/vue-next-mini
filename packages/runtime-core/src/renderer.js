@@ -1,7 +1,10 @@
 import { Fragment, Text, Comment, isSameVNodeType } from "./vnode.js"
 import { ShapeFlags } from "../../shared/src/shapeFlags.js"
 import { EMPTY_OBJ, isString } from "../../shared/src/index.js"
-import { normalizeVNode } from "./componentRenderUtils.js"
+import { normalizeVNode, renderComponentRoot } from "./componentRenderUtils.js"
+import { createComponentInstance, setupComponent } from "./component.js"
+import { ReactiveEffect } from "../../reactivity/src/effect.js"
+import { queuePreFlushCb } from "./scheduler.js"
 
 export function createRenderer(options) {
   return baseCreateRenderer(options)
@@ -207,8 +210,50 @@ function baseCreateRenderer(options) {
           processElement(oldVNode, newVNode, container, anchor)
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
           // 组件
+          processComponent(oldVNode, newVNode, container, anchor)
         }
     }
+  }
+
+  const processComponent = (oldVNode, newVNode, container, anchor) => {
+    if (oldVNode == null) {
+      // 挂载
+      mountComponent(newVNode, container, anchor)
+    }
+  }
+
+  const mountComponent = (initialVNode, container, anchor) => {
+    // 生产组件实例
+    initialVNode.component = createComponentInstance(initialVNode)
+    const instance = initialVNode.component
+    // 标准化组件实例数据
+    setupComponent(instance)
+
+    // 设置组件渲染
+    setupRenderEffect(instance, initialVNode, container, anchor)
+  }
+
+  const setupRenderEffect = (instance, initialVNode, container, anchor) => {
+    // 组件挂载和更新方法
+    const componentUpdateFn = () => {
+      // 当前处于mounted之前，初次加载
+      if (!instance.isMounted) {
+        // 从render中获取到要渲染的内容
+        const subTree = instance.subTree = renderComponentRoot(instance)
+        // patch，最终渲染到页面上
+        patch(null, subTree, container, anchor)
+        initialVNode.el = subTree.el
+      }
+    }
+
+    const effect = instance.effect = new ReactiveEffect(componentUpdateFn, () => {
+      return queuePreFlushCb(update)
+    })
+
+    const update = instance.update = () => effect.run()
+
+    // 本质上触发的是componentUpdateFn
+    update()
   }
 
   // 渲染函数
