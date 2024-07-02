@@ -3,6 +3,7 @@ import { isOn } from "../../shared/src/index.js"
 import { patchDOMProp } from "./modules/props.js"
 import { patchAttr } from "./modules/attrs.js"
 import { patchStyle } from "./modules/style.js"
+import { patchEvent } from "./modules/events.js"
 
 export const patchProp = (el, key, prevValue, nextValue) => {
   if (key === 'class') {
@@ -10,7 +11,7 @@ export const patchProp = (el, key, prevValue, nextValue) => {
   } else if (key === 'style') {
     patchStyle(el, prevValue, nextValue)
   } else if (isOn(key)) {
-
+    patchEvent(el, key, prevValue, nextValue)
   } else if (shouldSetAsProp(el, key)) {
     patchDOMProp(el, key, nextValue)
   } else {

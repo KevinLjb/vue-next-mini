@@ -1,4 +1,4 @@
-import {Fragment, Text, Comment, isSameVNodeType} from "./vnode.js"
+import { Fragment, Text, Comment, isSameVNodeType } from "./vnode.js"
 import { ShapeFlags } from "../../shared/src/shapeFlags.js"
 import { EMPTY_OBJ } from "../../shared/src/index.js"
 
@@ -12,8 +12,23 @@ function baseCreateRenderer(options) {
     patchProp: hostPatchProp,
     createElement: hostCreateElement,
     setElementText: hostSetElementText,
-    remove: hostRemove
+    remove: hostRemove,
+    createText: hostCreateText,
+    setText: hostSetText
   } = options
+
+  const processText = (oldVNode, newVNode, container, anchor) => {
+    // 不存在旧节点,则为挂载操作
+    if (oldVNode == null) {
+      newVNode.el = hostCreateText(newVNode.children)
+      hostInsert(newVNode.el, container, anchor)
+    } else {
+      const el = newVNode.el = oldVNode.el
+      if (newVNode.children !== oldVNode.children) {
+        hostSetText(el, newVNode.children)
+      }
+    }
+  }
 
   const processElement = (oldVNode, newVNode, container, anchor) => {
     if (oldVNode == null) {
@@ -138,6 +153,7 @@ function baseCreateRenderer(options) {
     const { type, shapeFlag } = newVNode
     switch(type) {
       case Text:
+        processText(oldVNode, newVNode, container, anchor)
         break
       case Comment:
         break
