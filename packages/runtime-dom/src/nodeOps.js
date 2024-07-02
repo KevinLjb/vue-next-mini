@@ -22,5 +22,8 @@ export const nodeOps = {
   },
   createText(text) {
     return doc.createTextNode(text)
+  },
+  createComment(text) {
+    return doc.createComment(text)
   }
 }
