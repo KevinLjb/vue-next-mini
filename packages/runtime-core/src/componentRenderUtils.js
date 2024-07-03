@@ -23,18 +23,16 @@ export function cloneIfMounted(child) {
 }
 
 export function renderComponentRoot(instance) {
-  const { vnode, render } = instance
+  const { vnode, render, data } = instance
   let result
-
   try {
     // 有状态的组件
     if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-      // 获取到render函数的返回值
-      result = normalizeVNode(render())
+      // 获取到render函数的返回值,并且在调用时改变this指向
+      result = normalizeVNode(render.call(data))
     }
   } catch (e) {
     console.error(e)
   }
-
   return result
 }

@@ -6,8 +6,13 @@ import { render } from "../runtime-dom/src/index.js"
 const { effect, reactive, ref, computed, Text, Comment, Fragment } = Vue
 
 const component = {
+  data() {
+    return {
+      msg: 'hello component'
+    }
+  },
   render() {
-    return h('div', 'hello component')
+    return h('div', this.msg)
   }
 }
 

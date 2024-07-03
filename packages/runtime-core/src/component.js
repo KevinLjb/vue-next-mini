@@ -1,3 +1,6 @@
+import { isObject } from "../../shared/src/index.js"
+import { reactive } from '../../reactivity/src/reactive.js'
+
 let uid = 0
 export function createComponentInstance(vnode) {
   const type = vnode.type
@@ -32,4 +35,19 @@ function finishComponentSetup(instance) {
   // h函数的第一个参数就是type。h(Component)
   const Component = instance.type
   instance.render = Component.render
+
+  applyOptions(instance)
+}
+
+function applyOptions(instance) {
+  const { data: dataOptions } = instance.type
+  // 存在data选项
+  if (dataOptions) {
+    // 获取到data
+    const data = dataOptions()
+    if (isObject(data)) {
+      // 变成响应式对象
+      instance.data = reactive(data)
+    }
+  }
 }
