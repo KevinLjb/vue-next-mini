@@ -1,4 +1,4 @@
-import { isObject } from "../../shared/src/index.js"
+import { isFunction, isObject } from "../../shared/src/index.js"
 import { reactive } from '../../reactivity/src/reactive.js'
 
 export const LifecycleHooks = {
@@ -57,13 +57,31 @@ export const onBeforeMount = createHook(LifecycleHooks.BEFORE_MOUNT)
 export const onMounted = createHook(LifecycleHooks.MOUNTED)
 
 function setupStateFulComponent(instance) {
+  const Component = instance.type
+  const { setup } = Component
+  // 有setup，代表是组合式API
+  if (setup) {
+    const setupResult = setup()
+    handleSetupResult(instance, setupResult)
+  } else {
+    finishComponentSetup(instance)
+  }
+}
+
+export function handleSetupResult(instance, setupResult) {
+  // 如果setup的返回值是一个函数，则代表返回的是渲染函数
+  if (isFunction(setupResult)) {
+    instance.render = setupResult
+  }
   finishComponentSetup(instance)
 }
 
 function finishComponentSetup(instance) {
   // h函数的第一个参数就是type。h(Component)
   const Component = instance.type
-  instance.render = Component.render
+  if (!instance.render) {
+    instance.render = Component.render
+  }
 
   applyOptions(instance)
 }

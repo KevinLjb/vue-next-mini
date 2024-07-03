@@ -6,21 +6,17 @@ import { render } from "../runtime-dom/src/index.js"
 const { effect, reactive, ref, computed, Text, Comment, Fragment } = Vue
 
 const component = {
-  data() {
-    return {
-      msg: 'hello component'
-    }
-  },
-  render() {
-    return h('div', this.msg)
-  },
-  // 组件被挂载之后
-  mounted() {
-    console.log('this', this)
+  setup() {
+    const obj = reactive({
+      name: '张三'
+    })
+
     setTimeout(() => {
-      this.msg = 'hello world'
-    }, 2000)
-  },
+      obj.name = '李四'
+    }, 2000);
+
+    return () => h('div', obj.name)
+  }
 }
 
 const vnode = h(component)
