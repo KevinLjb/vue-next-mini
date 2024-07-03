@@ -253,6 +253,21 @@ function baseCreateRenderer(options) {
           m()
         }
         initialVNode.el = subTree.el
+        // 标记首次渲染完成
+        instance.isMounted = true
+      } else {
+        let { next, vnode } = instance
+        if (!next) {
+          next = vnode
+        }
+        // 获取下一次的vnode,重新执行render
+        const nextTree = renderComponentRoot(instance)
+        const prevTree = instance.subTree
+        instance.subTree = nextTree
+        // 通过patch进行更新视图
+        patch(prevTree, nextTree, container, anchor)
+        // 更新el
+        next.el = nextTree.el
       }
     }
 

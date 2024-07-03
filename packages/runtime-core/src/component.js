@@ -77,16 +77,8 @@ function applyOptions(instance) {
     mounted
   } = instance.type
 
-  function registerLifecycleHook(register, hook) {
-    register(hook, instance)
-  }
-
-  // 将mounted事件注册
-  registerLifecycleHook(onBeforeMount, beforeMount)
-  registerLifecycleHook(onMounted, mounted)
-
   if (beforeCreate) {
-    callHook(beforeCreate)
+    callHook(beforeCreate, instance.data)
   }
 
   // 存在data选项
@@ -100,10 +92,20 @@ function applyOptions(instance) {
   }
 
   if (created) {
-    callHook(created)
+    callHook(created, instance.data)
   }
+
+  function registerLifecycleHook(register, hook) {
+    if (hook) {
+      register(hook.bind(instance.data), instance)
+    }
+  }
+
+  // 将mounted事件注册
+  registerLifecycleHook(onBeforeMount, beforeMount)
+  registerLifecycleHook(onMounted, mounted)
 }
 
-function callHook(hook) {
-  hook()
+function callHook(hook, proxy) {
+  hook.bind(proxy)()
 }
