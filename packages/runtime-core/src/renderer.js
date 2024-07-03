@@ -238,10 +238,20 @@ function baseCreateRenderer(options) {
     const componentUpdateFn = () => {
       // 当前处于mounted之前，初次加载
       if (!instance.isMounted) {
+        // 拿到mount相关钩子
+        const { bm, m } = instance
+        // beforeMount
+        if (bm) {
+          bm()
+        }
         // 从render中获取到要渲染的内容
         const subTree = instance.subTree = renderComponentRoot(instance)
         // patch，最终渲染到页面上
         patch(null, subTree, container, anchor)
+        // mounted
+        if (m) {
+          m()
+        }
         initialVNode.el = subTree.el
       }
     }

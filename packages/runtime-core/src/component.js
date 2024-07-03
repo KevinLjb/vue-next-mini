@@ -1,6 +1,13 @@
 import { isObject } from "../../shared/src/index.js"
 import { reactive } from '../../reactivity/src/reactive.js'
 
+export const LifecycleHooks = {
+  BEFORE_CREATE: 'bc',
+  CREATED: 'c',
+  BEFORE_MOUNT: 'bm',
+  MOUNTED: 'm'
+}
+
 let uid = 0
 export function createComponentInstance(vnode) {
   const type = vnode.type
@@ -12,10 +19,24 @@ export function createComponentInstance(vnode) {
     subTree: null, // render返回值
     effect: null, // ReactiveEffect
     update: null, // update函数，触发effect.run
-    render: null // 组件内的render函数
+    render: null, // 组件内的render函数
+    isMounted: false,
+    bc: null,
+    c: null,
+    bm: null,
+    m: null
   }
 
   return instance
+}
+
+/**
+ * 注册hook
+ */
+export function injectHook(type, hook, target) {
+  if (target) {
+    target[type] = hook
+  }
 }
 
 /**
@@ -26,6 +47,14 @@ export function setupComponent(instance) {
   const setupResult = setupStateFulComponent(instance)
   return setupResult
 }
+
+export const createHook = lifecycle => {
+  return (hook, target) => injectHook(lifecycle, hook, target)
+}
+
+export const onBeforeMount = createHook(LifecycleHooks.BEFORE_MOUNT)
+
+export const onMounted = createHook(LifecycleHooks.MOUNTED)
 
 function setupStateFulComponent(instance) {
   finishComponentSetup(instance)
@@ -40,7 +69,26 @@ function finishComponentSetup(instance) {
 }
 
 function applyOptions(instance) {
-  const { data: dataOptions } = instance.type
+  const {
+    data: dataOptions,
+    beforeCreate,
+    created,
+    beforeMount,
+    mounted
+  } = instance.type
+
+  function registerLifecycleHook(register, hook) {
+    register(hook, instance)
+  }
+
+  // 将mounted事件注册
+  registerLifecycleHook(onBeforeMount, beforeMount)
+  registerLifecycleHook(onMounted, mounted)
+
+  if (beforeCreate) {
+    callHook(beforeCreate)
+  }
+
   // 存在data选项
   if (dataOptions) {
     // 获取到data
@@ -50,4 +98,12 @@ function applyOptions(instance) {
       instance.data = reactive(data)
     }
   }
+
+  if (created) {
+    callHook(created)
+  }
+}
+
+function callHook(hook) {
+  hook()
 }
