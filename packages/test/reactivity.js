@@ -6,9 +6,9 @@ import { render } from "../runtime-dom/src/index.js"
 const { effect, reactive, ref, computed, Text, Comment, Fragment } = Vue
 
 const vnode = h('ul', [
-  h('li', {
-    key: 1
-  }, 'a'),
+  // h('li', {
+  //   key: 1
+  // }, 'a'),
   h('li', {
     key: 2
   }, 'b'),

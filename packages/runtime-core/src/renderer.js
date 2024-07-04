@@ -127,7 +127,7 @@ function baseCreateRenderer(options) {
   /**
    * diff
    */
-  const patchKeyedChildren = (oldChildren, newChildren, container, anchor) => {
+  const patchKeyedChildren = (oldChildren, newChildren, container, parentAnchor) => {
     // 索引
     let i = 0
     // 新子节点的长度
@@ -137,7 +137,7 @@ function baseCreateRenderer(options) {
     // 新子节点的最大索引
     let newChildrenEnd = newChildrenLength - 1
     // 1.自前向后的diff
-    while(i <= oldChildrenEnd && i <= newChildrenEnd) {
+    while (i <= oldChildrenEnd && i <= newChildrenEnd) {
       const oldVNode = oldChildren[i]
       const newVNode = normalizeVNode(newChildren[i])
       // 判断两个vnode是否是同一个vnode
@@ -151,7 +151,7 @@ function baseCreateRenderer(options) {
     }
 
     // 2.自后向前的diff
-    while(i <= oldChildrenEnd && i <= newChildrenEnd) {
+    while (i <= oldChildrenEnd && i <= newChildrenEnd) {
       const oldVNode = oldChildren[oldChildrenEnd]
       const newVNode = newChildren[newChildrenEnd]
       if (isSameVNodeType(oldVNode, newVNode)) {
@@ -161,6 +161,21 @@ function baseCreateRenderer(options) {
       }
       oldChildrenEnd--
       newChildrenEnd--
+    }
+
+    // 3.新节点多于旧节点的diff
+    if (i > oldChildrenEnd) {
+      if (i <= newChildrenEnd) {
+        // 获取到下一个节点索引
+        const nextPos = newChildrenEnd + 1
+        // 判断下一个索引是否大于新节点的最大索引，如果没超过，则取出当前位置的el做为锚点
+        // 新节点的元素将插入到该元素之前
+        const anchor = nextPos < newChildrenLength ? newChildren[nextPos].el : parentAnchor
+        while (i <= newChildrenEnd) {
+          patch(null, normalizeVNode(newChildren[i]), container, anchor)
+          i++
+        }
+      }
     }
   }
 
