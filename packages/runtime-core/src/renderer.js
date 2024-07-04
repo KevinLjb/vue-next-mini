@@ -107,6 +107,7 @@ function baseCreateRenderer(options) {
         // 新节点的children也是数组
         if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
           // diff
+          patchKeyedChildren(c1, c2, container, anchor)
         } else {
           // 新子节点不是array，则直接卸载旧子节点
         }
@@ -120,6 +121,33 @@ function baseCreateRenderer(options) {
           // 单独挂载子节点操作
         }
       }
+    }
+  }
+
+  /**
+   * diff
+   */
+  const patchKeyedChildren = (oldChildren, newChildren, container, anchor) => {
+    // 索引
+    let i = 0
+    // 新子节点的长度
+    const newChildrenLength = newChildren.length
+    // 旧子节点的最大索引
+    const oldChildrenEnd = oldChildren.length - 1
+    // 新子节点的最大索引
+    const newChildrenEnd = newChildrenLength - 1
+    // 1.自前向后的diff
+    while (i <= oldChildrenEnd && i <= newChildrenEnd) {
+      const oldVNode = oldChildren[i]
+      const newVNode = normalizeVNode(newChildren[i])
+      // 判断两个vnode是否是同一个vnode
+      if (isSameVNodeType(oldVNode, newVNode)) {
+        // 是同一个vnode，直接使用patch比对即可
+        patch(oldVNode, newVNode, container, null)
+      } else {
+        break
+      }
+      i++
     }
   }
 
@@ -168,7 +196,7 @@ function baseCreateRenderer(options) {
       // 设置文本子节点
       hostSetElementText(el, vnode.children)
     } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-
+      mountChildren(vnode.children, el, anchor)
     }
     // 处理props
     if (props) {
