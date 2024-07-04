@@ -176,6 +176,12 @@ function baseCreateRenderer(options) {
           i++
         }
       }
+    } else if (i > newChildrenEnd) {
+      // 4.旧节点多于新节点的diff
+      while (i <= oldChildrenEnd) {
+        unmount(oldChildren[i])
+        i++
+      }
     }
   }
 
