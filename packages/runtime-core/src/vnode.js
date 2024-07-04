@@ -30,7 +30,9 @@ export function createBaseVNode(type, props, children, shapeFlag) {
     __v_isVNode: true,
     type,
     props,
-    shapeFlag
+    shapeFlag,
+    // 把props中的key拿出来
+    key: (props || {}).key
   }
   if (props) {
     let { class: klass } = props

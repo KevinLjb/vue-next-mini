@@ -133,11 +133,11 @@ function baseCreateRenderer(options) {
     // 新子节点的长度
     const newChildrenLength = newChildren.length
     // 旧子节点的最大索引
-    const oldChildrenEnd = oldChildren.length - 1
+    let oldChildrenEnd = oldChildren.length - 1
     // 新子节点的最大索引
-    const newChildrenEnd = newChildrenLength - 1
+    let newChildrenEnd = newChildrenLength - 1
     // 1.自前向后的diff
-    while (i <= oldChildrenEnd && i <= newChildrenEnd) {
+    while(i <= oldChildrenEnd && i <= newChildrenEnd) {
       const oldVNode = oldChildren[i]
       const newVNode = normalizeVNode(newChildren[i])
       // 判断两个vnode是否是同一个vnode
@@ -148,6 +148,19 @@ function baseCreateRenderer(options) {
         break
       }
       i++
+    }
+
+    // 2.自后向前的diff
+    while(i <= oldChildrenEnd && i <= newChildrenEnd) {
+      const oldVNode = oldChildren[oldChildrenEnd]
+      const newVNode = newChildren[newChildrenEnd]
+      if (isSameVNodeType(oldVNode, newVNode)) {
+        patch(oldVNode, newVNode, container, null)
+      } else {
+        break
+      }
+      oldChildrenEnd--
+      newChildrenEnd--
     }
   }
 

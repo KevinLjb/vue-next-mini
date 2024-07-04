@@ -23,8 +23,8 @@ render(vnode, document.querySelector('#app'))
 setTimeout(() => {
   const vnode2 = h('ul', [
     h('li', {
-      key: 1
-    }, 'a'),
+      key: 4
+    }, 'c'),
     h('li', {
       key: 2
     }, 'b'),
